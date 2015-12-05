@@ -58,11 +58,12 @@ class SettingsMiddleware
      *
      * @param  \Illuminate\Http\Request                    $request
      * @param  \Symfony\Component\HttpFoundation\Response  $response
-     *
-     * @SuppressWarnings("unused")
      */
     public function terminate(Request $request, Response $response)
     {
         $this->settings->save();
+
+        $unused = compact('request', 'response');
+        unset($unused);
     }
 }
