@@ -74,6 +74,14 @@ class SettingsServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+
+        $this->publishes([
+            $this->getConfigFile() => config_path('settings.php')
+        ], 'config');
+
+        $this->publishes([
+            $this->getBasePath() . '/database/migrations/' => database_path('migrations')
+        ], 'migrations');
     }
 
     /**
