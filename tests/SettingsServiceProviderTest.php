@@ -60,8 +60,25 @@ class SettingsServiceProviderTest extends TestCase
         $expected = [
             'arcanedev.settings.manager',
             'arcanedev.settings.store',
+            \Arcanedev\Settings\Contracts\Store::class,
         ];
 
         $this->assertEquals($expected, $this->provider->provides());
+    }
+
+    /** @test */
+    public function it_can_get_the_settings_store()
+    {
+        $abstracts = [
+            'arcanedev.settings.store',
+            \Arcanedev\Settings\Contracts\Store::class,
+        ];
+
+        foreach ($abstracts as $abstract) {
+            $store = $this->app->make($abstract);
+
+            $this->assertInstanceOf(\Arcanedev\Settings\Bases\Store::class, $store);
+            $this->assertInstanceOf(\Arcanedev\Settings\Contracts\Store::class, $store);
+        }
     }
 }

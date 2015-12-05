@@ -1,15 +1,15 @@
 <?php namespace Arcanedev\Settings\Tests\Stores;
 
 use Arcanedev\Settings\Contracts\Store as StoreContract;
-use Arcanedev\Settings\Stores\MemoryStore;
+use Arcanedev\Settings\Stores\ArrayStore;
 
 /**
- * Class     MemoryStoreTest
+ * Class     ArrayStoreTest
  *
  * @package  Arcanedev\Settings\Tests\Stores
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
-class MemoryStoreTest extends AbstractStoreTest
+class ArrayStoreTest extends MemoryStoreTest
 {
     /* ------------------------------------------------------------------------------------------------
      |  Other Functions
@@ -18,22 +18,12 @@ class MemoryStoreTest extends AbstractStoreTest
     /**
      * Create store instance.
      *
-     * @param  array $data
+     * @param  array  $data
      *
      * @return StoreContract
      */
     protected function createStore(array $data = [])
     {
-        return new MemoryStore($data);
-    }
-
-    protected function assertStoreEquals(StoreContract $store, $expected, $message = null)
-    {
-        $this->assertEquals($expected, $store->all(), $message);
-    }
-
-    protected function assertStoreKeyEquals(StoreContract $store, $key, $expected, $message = null)
-    {
-        $this->assertEquals($expected, $store->get($key), $message);
+        return new ArrayStore($data);
     }
 }
