@@ -58,7 +58,6 @@ Feel free to check out the [releases](https://github.com/ARCANEDEV/Settings/rele
 ### DONE
 
   - [x] Laravel 5.1 supported.
-  - [x] Adding language selector view.
 
 ## Contribution
 
