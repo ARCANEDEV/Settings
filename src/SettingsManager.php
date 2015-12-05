@@ -35,7 +35,10 @@ class SettingsManager extends Manager
      */
     public function createJsonDriver()
     {
-        return 'Json driver';
+        return new Stores\JsonStore(
+            $this->app['files'],
+            $this->getConfig('settings.stores.json.path')
+        );
     }
 
     /**
@@ -45,7 +48,12 @@ class SettingsManager extends Manager
      */
     public function createDatabaseDriver()
     {
-        return 'Database driver';
+        $connection = $this->getConfig('settings.stores.database.connection');
+
+        return new Stores\DatabaseStore(
+            $this->app['db']->connection($connection),
+            $this->getConfig('settings.stores.database.table')
+        );
     }
 
     /**
@@ -55,7 +63,7 @@ class SettingsManager extends Manager
      */
     public function createMemoryDriver()
     {
-        return 'Memory driver';
+        return new Stores\MemoryStore;
     }
 
     /**
@@ -65,7 +73,7 @@ class SettingsManager extends Manager
      */
     public function createArrayDriver()
     {
-        return 'Array driver';
+        return new Stores\ArrayStore;
     }
 
     /* ------------------------------------------------------------------------------------------------
