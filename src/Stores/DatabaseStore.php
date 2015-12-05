@@ -140,7 +140,7 @@ class DatabaseStore extends Store implements StoreContract
         $segments = explode('.', $key);
         array_pop($segments);
 
-        while ($segments) {
+        while ( ! empty($segments)) {
             $segment = implode('.', $segments);
 
             // non-empty array - exit out of the loop
@@ -177,12 +177,10 @@ class DatabaseStore extends Store implements StoreContract
         $deleteKeys = [];
 
         foreach ($keys as $key) {
-            if (isset($insertData[$key])) {
+            if (isset($insertData[$key]))
                 $updateData[$key] = $insertData[$key];
-            }
-            else {
+            else
                 $deleteKeys[] = $key;
-            }
 
             unset($insertData[$key]);
         }
@@ -193,12 +191,12 @@ class DatabaseStore extends Store implements StoreContract
                 ->update(array('value' => $value));
         }
 
-        if ($insertData) {
+        if ( ! empty($insertData)) {
             $this->newQuery(true)
                 ->insert($this->prepareInsertData($insertData));
         }
 
-        if ($deleteKeys) {
+        if ( ! empty($deleteKeys)) {
             $this->newQuery()
                 ->whereIn('key', $deleteKeys)
                 ->delete();

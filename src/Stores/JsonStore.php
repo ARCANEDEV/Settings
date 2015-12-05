@@ -19,6 +19,13 @@ class JsonStore extends Store implements StoreContract
      | ------------------------------------------------------------------------------------------------
      */
     /**
+     * The Filesystem instance.
+     *
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    protected $files;
+
+    /**
      * The json file path.
      *
      * @var string

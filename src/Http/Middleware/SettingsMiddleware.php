@@ -14,6 +14,15 @@ use Symfony\Component\HttpFoundation\Response;
 class SettingsMiddleware
 {
     /* ------------------------------------------------------------------------------------------------
+     |  Properties
+     | ------------------------------------------------------------------------------------------------
+     */
+    /**
+     * @var \Arcanedev\Settings\Contracts\Store
+     */
+    private $settings;
+
+    /* ------------------------------------------------------------------------------------------------
      |  Constructor
      | ------------------------------------------------------------------------------------------------
      */
@@ -49,6 +58,8 @@ class SettingsMiddleware
      *
      * @param  \Illuminate\Http\Request                    $request
      * @param  \Symfony\Component\HttpFoundation\Response  $response
+     *
+     * @SuppressWarnings("unused")
      */
     public function terminate(Request $request, Response $response)
     {
