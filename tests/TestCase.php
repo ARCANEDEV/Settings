@@ -49,7 +49,14 @@ abstract class TestCase extends BaseTestCase
      */
     protected function getEnvironmentSetUp($app)
     {
-        //
+        /** @var \Illuminate\Config\Repository $config */
+        $config = $app['config'];
+        $config->set('database.default', 'testing');
+        $config->set('database.connections.testing', [
+            'driver'   => 'sqlite',
+            'database' => ':memory:',
+            'prefix'   => '',
+        ]);
     }
 
     /* ------------------------------------------------------------------------------------------------
