@@ -51,4 +51,18 @@ abstract class TestCase extends BaseTestCase
     {
         //
     }
+
+    /* ------------------------------------------------------------------------------------------------
+     |  Other Functions
+     | ------------------------------------------------------------------------------------------------
+     */
+    /**
+     * Get Fixtures path.
+     *
+     * @return string
+     */
+    protected function getFixturesPath()
+    {
+        return realpath(__DIR__ . '/fixtures');
+    }
 }
