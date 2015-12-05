@@ -1,0 +1,45 @@
+{
+    "name":        "arcanedev/settings",
+    "description": "Persistent settings for Laravel.",
+    "keywords":    ["arcanedev", "laravel", "setting", "settings", "config", "database", "json", "persistent"],
+    "homepage":    "https://github.com/ARCANEDEV/Settings",
+    "authors": [
+        {
+            "name":     "ARCANEDEV",
+            "email":    "arcanedev.maroc@gmail.com",
+            "homepage": "https://github.com/ARCANEDEV",
+            "role":     "Developer"
+        }
+    ],
+    "type":    "library",
+    "license": "MIT",
+    "require": {
+        "php" :                ">=5.5.9",
+        "arcanedev/support":   "~3.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "~3.1",
+        "phpunit/phpcov":      "~2.0",
+        "phpunit/phpunit":     "~4.0|~5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Arcanedev\\Settings\\": "src/"
+        },
+        "files": ["helpers.php"]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Arcanedev\\Settings\\Tests\\": "tests/"
+        }
+    },
+    "suggest": {
+        "illuminate/filesystem": "Save settings to a JSON file.",
+        "illuminate/database": "Save settings to a database table."
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
