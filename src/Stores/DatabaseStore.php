@@ -262,7 +262,7 @@ class DatabaseStore extends Store implements StoreContract
      *
      * @param  $insert  boolean  Whether the query is an insert or not.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Arcanedev\Settings\Models\Setting
      */
     protected function newQuery($insert = false)
     {
