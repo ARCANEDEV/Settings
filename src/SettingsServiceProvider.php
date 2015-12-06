@@ -53,19 +53,8 @@ class SettingsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerConfig();
-
-        $this->singleton('arcanedev.settings.manager', function(Application $app) {
-            return new SettingsManager($app);
-        });
-
-        $this->bind('arcanedev.settings.store', function(Application $app) {
-            return $app->make('arcanedev.settings.manager')->driver();
-        });
-
-        $this->bind(
-            \Arcanedev\Settings\Contracts\Store::class,
-            'arcanedev.settings.store'
-        );
+        $this->registerSettingsManager();
+        $this->registerSettingsStore();
     }
 
     /**
@@ -96,5 +85,34 @@ class SettingsServiceProvider extends ServiceProvider
             'arcanedev.settings.store',
             \Arcanedev\Settings\Contracts\Store::class,
         ];
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     |  Other Functions
+     | ------------------------------------------------------------------------------------------------
+     */
+    /**
+     * Register the Settings Manager.
+     */
+    private function registerSettingsManager()
+    {
+        $this->singleton('arcanedev.settings.manager', function(Application $app) {
+            return new SettingsManager($app);
+        });
+    }
+
+    /**
+     * Register the Settings Store.
+     */
+    private function registerSettingsStore()
+    {
+        $this->bind('arcanedev.settings.store', function(Application $app) {
+            return $app->make('arcanedev.settings.manager')->driver();
+        });
+
+        $this->bind(
+            \Arcanedev\Settings\Contracts\Store::class,
+            'arcanedev.settings.store'
+        );
     }
 }
