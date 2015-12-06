@@ -7,6 +7,14 @@ use Illuminate\Support\Manager;
  *
  * @package  Arcanedev\Settings
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
+ *
+ * @method   mixed  get(mixed $key, mixed $default = null)
+ * @method   bool   has(string $key)
+ * @method   void   set(string $key, mixed $value = null)
+ * @method   void   forget(string $key)
+ * @method   void   reset()
+ * @method   array  all()
+ * @method   array  save()
  */
 class SettingsManager extends Manager
 {
