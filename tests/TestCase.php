@@ -38,8 +38,21 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageAliases($app)
     {
         return [
-            //
+            'Setting' => \Arcanedev\Settings\Facades\Setting::class,
         ];
+    }
+
+    /**
+     * Resolve application HTTP Kernel implementation.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
+     */
+    protected function resolveApplicationHttpKernel($app)
+    {
+        $app->singleton(
+            \Illuminate\Contracts\Http\Kernel::class,
+            \Arcanedev\Settings\Tests\Stubs\HttpKernel::class
+        );
     }
 
     /**
@@ -57,6 +70,13 @@ abstract class TestCase extends BaseTestCase
             'database' => ':memory:',
             'prefix'   => '',
         ]);
+
+        /** @var \Illuminate\Routing\Router $router */
+        $router = $app['router'];
+
+        $router->get('/', function () {
+            return 'Dummy Home page';
+        });
     }
 
     /* ------------------------------------------------------------------------------------------------
