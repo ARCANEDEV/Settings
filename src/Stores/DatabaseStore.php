@@ -2,9 +2,9 @@
 
 use Arcanedev\Settings\Bases\Store;
 use Arcanedev\Settings\Contracts\Store as StoreContract;
+use Arcanedev\Settings\Models\Setting;
 use Arcanedev\Settings\Utilities\Arr;
 use Closure;
-use Illuminate\Database\Connection;
 
 /**
  * Class     DatabaseStore
@@ -18,19 +18,8 @@ class DatabaseStore extends Store implements StoreContract
      |  Properties
      | ------------------------------------------------------------------------------------------------
      */
-    /**
-     * The database connection instance.
-     *
-     * @var \Illuminate\Database\Connection
-     */
-    protected $connection;
-
-    /**
-     * The table to query from.
-     *
-     * @var string
-     */
-    protected $table;
+    /** @var  \Arcanedev\Settings\Models\Setting */
+    protected $model;
 
     /**
      * Any query constraints that should be applied.
@@ -53,11 +42,12 @@ class DatabaseStore extends Store implements StoreContract
     /**
      * Make the Database store instance.
      *
-     * @param  \Illuminate\Database\Connection  $connection
-     * @param  string                           $table
+     * @param  string  $connection
+     * @param  string  $table
      */
-    public function __construct(Connection $connection, $table = null)
+    public function __construct($connection, $table = null)
     {
+        $this->model = new Setting;
         $this->setConnection($connection);
         $this->setTable($table ?: 'settings');
     }
@@ -69,13 +59,13 @@ class DatabaseStore extends Store implements StoreContract
     /**
      * Set the database connection.
      *
-     * @param  \Illuminate\Database\Connection  $connection
+     * @param  string  $connection
      *
      * @return self
      */
-    public function setConnection(Connection $connection)
+    public function setConnection($connection)
     {
-        $this->connection = $connection;
+        $this->model->setConnection($connection);
 
         return $this;
     }
@@ -89,7 +79,7 @@ class DatabaseStore extends Store implements StoreContract
      */
     public function setTable($table)
     {
-        $this->table = $table;
+        $this->model->setTable($table);
 
         return $this;
     }
@@ -163,7 +153,14 @@ class DatabaseStore extends Store implements StoreContract
      */
     protected function read()
     {
-        return $this->parseReadData($this->newQuery()->get());
+        $results  = [];
+
+        foreach ($this->model->all() as $setting) {
+            /** @var Setting $setting */
+            Arr::set($results, $setting->key, $setting->value);
+        }
+
+        return $results;
     }
 
     /**
@@ -171,115 +168,112 @@ class DatabaseStore extends Store implements StoreContract
      */
     protected function write(array $data)
     {
-        $keys       = $this->newQuery()->lists('key');
-        $insertData = array_dot($data);
-        $updateData = [];
-        $deleteKeys = [];
+        list($inserts, $updates, $deletes) = $this->prepareData($data);
 
-        foreach ($keys as $key) {
-            if (isset($insertData[$key]))
-                $updateData[$key] = $insertData[$key];
+        $this->updateSettings($updates);
+        $this->insertSettings($inserts);
+        $this->deleteSettings($deletes);
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     |  CRUD Functions
+     | ------------------------------------------------------------------------------------------------
+     */
+    /**
+     * Prepare settings data.
+     *
+     * @param  array  $data
+     *
+     * @return array
+     */
+    private function prepareData(array $data)
+    {
+        $inserts = array_dot($data);
+        $updates = [];
+        $deletes = [];
+
+        foreach ($this->model()->lists('key') as $key) {
+            if (isset($inserts[$key]))
+                $updates[$key] = $inserts[$key];
             else
-                $deleteKeys[] = $key;
+                $deletes[]     = $key;
 
-            unset($insertData[$key]);
+            unset($inserts[$key]);
         }
 
-        foreach ($updateData as $key => $value) {
-            $this->newQuery()
-                ->where('key', '=', $key)
-                ->update(array('value' => $value));
-        }
+        return [$inserts, $updates, $deletes];
+    }
 
-        if ( ! empty($insertData)) {
-            $this->newQuery(true)
-                ->insert($this->prepareInsertData($insertData));
-        }
-
-        if ( ! empty($deleteKeys)) {
-            $this->newQuery()
-                ->whereIn('key', $deleteKeys)
-                ->delete();
+    /**
+     * Update settings data.
+     *
+     * @param  array $updates
+     */
+    private function updateSettings($updates)
+    {
+        foreach ($updates as $key => $value) {
+            $this->model()->where('key', $key)->update(compact('value'));
         }
     }
 
     /**
-     * Parse data coming from the database.
+     * Insert settings data.
      *
-     * @param  array $data
-     *
-     * @return array
+     * @param  array $inserts
      */
-    protected function parseReadData($data)
+    private function insertSettings(array $inserts)
     {
-        $results = [];
-
-        foreach ($data as $row) {
-            if (is_array($row)) {
-                $key   = $row['key'];
-                $value = $row['value'];
-            }
-            elseif (is_object($row)) {
-                $key   = $row->key;
-                $value = $row->value;
-            }
-            else {
-                throw new \UnexpectedValueException(
-                    'Expected array or object, got ' . gettype($row)
-                );
-            }
-
-            Arr::set($results, $key, $value);
+        if (empty($inserts)) {
+            return;
         }
 
-        return $results;
-    }
-
-    /**
-     * Transforms settings data into an array ready to be insterted into the
-     * database. Call array_dot on a multidimensional array before passing it
-     * into this method!
-     *
-     * @param  array $data Call array_dot on a multidimensional array before passing it into this method!
-     *
-     * @return array
-     */
-    protected function prepareInsertData(array $data)
-    {
         $dbData = [];
 
-        foreach ($data as $key => $value) {
-            $dbData[] = empty($this->extraColumns)
-                ? compact('key', 'value')
-                : array_merge($this->extraColumns, compact('key', 'value'));
+        foreach ($inserts as $key => $value) {
+            $data     = compact('key', 'value');
+            $dbData[] = empty($this->extraColumns) ? $data : array_merge($this->extraColumns, $data);
         }
 
-        return $dbData;
+        $this->model(true)->insert($dbData);
+    }
+
+    /**
+     * Delete settings data.
+     *
+     * @param  array  $deletes
+     */
+    private function deleteSettings(array $deletes)
+    {
+        if (empty($deletes)) {
+            return;
+        }
+
+        $this->model()->whereIn('key', $deletes)->delete();
     }
 
     /**
      * Create a new query builder instance.
      *
-     * @param  $insert  boolean  Whether the query is an insert or not.
+     * @param  $insert  bool  Whether the query is an insert or not.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Arcanedev\Settings\Models\Setting
      */
-    protected function newQuery($insert = false)
+    private function model($insert = false)
     {
-        $query = $this->connection->table($this->table);
+        $model = $this->model;
 
-        if ( ! $insert) {
+        if ($insert === false) {
             foreach ($this->extraColumns as $key => $value) {
-                $query->where($key, '=', $value);
+                $model->where($key, $value);
             }
         }
 
-        if ($this->queryConstraint !== null) {
+        if ( ! is_null($this->queryConstraint)) {
             /** @var  Closure  $callback */
             $callback = $this->queryConstraint;
-            $callback($query, $insert);
+            $callback($model, $insert);
         }
 
-        return $query;
+        return $model;
     }
 }

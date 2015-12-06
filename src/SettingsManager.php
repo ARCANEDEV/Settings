@@ -21,7 +21,7 @@ class SettingsManager extends Manager
      */
     public function getDefaultDriver()
     {
-        return $this->getConfig('settings.default', 'json');
+        return $this->getConfig('default', 'json');
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ class SettingsManager extends Manager
     {
         return new Stores\JsonStore(
             $this->app['files'],
-            $this->getConfig('settings.stores.json.path')
+            $this->getConfig('stores.json.path')
         );
     }
 
@@ -48,11 +48,9 @@ class SettingsManager extends Manager
      */
     public function createDatabaseDriver()
     {
-        $connection = $this->getConfig('settings.stores.database.connection');
-
         return new Stores\DatabaseStore(
-            $this->app['db']->connection($connection),
-            $this->getConfig('settings.stores.database.table')
+            $this->getConfig('stores.database.connection'),
+            $this->getConfig('stores.database.table')
         );
     }
 
@@ -93,6 +91,6 @@ class SettingsManager extends Manager
         /** @var  \Illuminate\Config\Repository  $config */
         $config = $this->app['config'];
 
-        return $config->get($key, $default);
+        return $config->get("settings.$key", $default);
     }
 }

@@ -34,27 +34,17 @@ class DatabaseStoreTest extends AbstractStoreTest
     {
         parent::setUp();
 
-        $this->container = new \Illuminate\Container\Container;
-        $this->capsule   = new \Illuminate\Database\Capsule\Manager($this->container);
-        $this->capsule->setAsGlobal();
-        $this->container['db'] = $this->capsule;
-        $this->capsule->addConnection([
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => '',
+        $this->artisan('vendor:publish', [
+            '--provider' => \Arcanedev\Settings\SettingsServiceProvider::class,
+            '--tag'      => ['migrations'],
         ]);
 
-        $this->capsule->schema()->create('settings', function(Blueprint $table) {
-            $table->string('key', 64)->unique();
-            $table->string('value', 4096);
-        });
+        $this->artisan('migrate');
     }
 
     public function tearDown()
     {
-        $this->capsule->schema()->drop('settings');
-        unset($this->capsule);
-        unset($this->container);
+        $this->artisan('migrate:reset');
 
         parent::tearDown();
     }
@@ -80,6 +70,6 @@ class DatabaseStoreTest extends AbstractStoreTest
             unset($store);
         }
 
-        return new DatabaseStore($this->capsule->getConnection());
+        return new DatabaseStore('testing');
     }
 }
