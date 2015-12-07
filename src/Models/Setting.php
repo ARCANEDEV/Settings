@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property  string  key
  * @property  string  value
  *
- * @method    \Illuminate\Database\Eloquent\Builder  insert(array $values)
- * @method    \Illuminate\Support\Collection         lists(string $column, mixed $key = null)
- * @method    \Illuminate\Database\Eloquent\Builder  where(mixed $column, string $operator = null, mixed $value = null, string $boolean = 'and')
- * @method    \Illuminate\Database\Eloquent\Builder  whereIn(string $key, mixed $value)
+ * @method    \Illuminate\Database\Eloquent\Collection  get(array $columns = ['*'])
+ * @method    \Illuminate\Database\Eloquent\Builder     insert(array $values)
+ * @method    \Illuminate\Support\Collection            lists(string $column, mixed $key = null)
+ * @method    \Illuminate\Database\Eloquent\Builder     where(mixed $column, string $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method    \Illuminate\Database\Eloquent\Builder     whereIn(string $key, mixed $value)
  */
 class Setting extends Model
 {
