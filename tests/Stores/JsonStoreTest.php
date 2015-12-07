@@ -39,13 +39,16 @@ class JsonStoreTest extends AbstractStoreTest
     {
         $path = $this->getFixturesPath() . '/settings.json';
 
-        if ( ! file_exists($path) && $data !== null) {
-            $json = $data ? json_encode($data) : '{}';
-
-            file_put_contents($path, $json);
+        if ( ! empty($data)) {
+            file_put_contents($path, json_encode($data));
         }
 
         return $this->makeStore($this->app['files'], $path);
+    }
+
+    protected function makeStore($files, $path = 'fake-path/settings.json')
+    {
+        return new JsonStore($files, $path);
     }
 
     protected function cleanFixtures()
@@ -109,14 +112,5 @@ class JsonStoreTest extends AbstractStoreTest
 
         $store = $this->makeStore($files->reveal());
         $store->get('foo');
-    }
-
-    /* ------------------------------------------------------------------------------------------------
-     |  Other Functions
-     | ------------------------------------------------------------------------------------------------
-     */
-    protected function makeStore($files, $path = 'fake-path/settings.json')
-    {
-        return new JsonStore($files, $path);
     }
 }
