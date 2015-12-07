@@ -155,7 +155,7 @@ class DatabaseStore extends Store implements StoreContract
     {
         $results  = [];
 
-        foreach ($this->model->all() as $setting) {
+        foreach ($this->model()->get() as $setting) {
             /** @var Setting $setting */
             Arr::set($results, $setting->key, $setting->value);
         }
@@ -268,12 +268,26 @@ class DatabaseStore extends Store implements StoreContract
             }
         }
 
-        if ( ! is_null($this->queryConstraint)) {
+        if ($this->hasConstraint()) {
             /** @var  Closure  $callback */
             $callback = $this->queryConstraint;
-            $callback($model, $insert);
+            $model    = $callback($model, $insert);
         }
 
         return $model;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     |  Check Functions
+     | ------------------------------------------------------------------------------------------------
+     */
+    /**
+     * Check if has a query constraint.
+     *
+     * @return bool
+     */
+    public function hasConstraint()
+    {
+        return ! is_null($this->queryConstraint);
     }
 }
