@@ -37,6 +37,8 @@ Feel free to check out the [releases](https://github.com/ARCANEDEV/Settings/rele
 
   * Easy setup & configuration.
   * Multiple store drivers : `json`, `database`, `memory`, `array`.
+  * Well documented &amp; IDE Friendly.
+  * Well tested with maximum code quality.
   * Made with :heart: &amp; :coffee:.
 
 ## Table of contents
@@ -48,16 +50,21 @@ Feel free to check out the [releases](https://github.com/ARCANEDEV/Settings/rele
 
 ### ONGOING
 
-  - [ ] 100% Code coverage + Maximum code quality.
   - [ ] Refactoring.
 
 ### TODOS
 
   - [ ] Laravel 5.0 support.
+  - [ ] Laravel 5.2 support.
 
 ### DONE
 
   - [x] Laravel 5.1 supported.
+  - [x] 100% Code coverage + Maximum code quality.
+
+### Credit
+
+The Settings package was inspired from [anlutro/laravel-settings](https://github.com/anlutro/laravel-settings).
 
 ## Contribution
 
