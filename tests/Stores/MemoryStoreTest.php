@@ -27,13 +27,13 @@ class MemoryStoreTest extends AbstractStoreTest
         return new MemoryStore($data);
     }
 
-    protected function assertStoreEquals(StoreContract $store, $expected, $message = null)
+    protected function assertStoreEquals($expected, $message = null)
     {
-        $this->assertEquals($expected, $store->all(), $message);
+        $this->assertEquals($expected, $this->store->all(), $message);
     }
 
-    protected function assertStoreKeyEquals(StoreContract $store, $key, $expected, $message = null)
+    protected function assertStoreKeyEquals($key, $expected, $message = null)
     {
-        $this->assertEquals($expected, $store->get($key), $message);
+        $this->assertEquals($expected, $this->store->get($key), $message);
     }
 }

@@ -1,6 +1,7 @@
 <?php namespace Arcanedev\Settings\Tests\Stores;
 
 use Arcanedev\Settings\Contracts\Store as StoreContract;
+use Arcanedev\Settings\Stores\DatabaseStore;
 use Arcanedev\Settings\Tests\TestCase;
 
 /**
@@ -12,33 +13,58 @@ use Arcanedev\Settings\Tests\TestCase;
 abstract class AbstractStoreTest extends TestCase
 {
     /* ------------------------------------------------------------------------------------------------
+     |  Properties
+     | ------------------------------------------------------------------------------------------------
+     */
+    /** @var StoreContract */
+    protected $store;
+
+    /* ------------------------------------------------------------------------------------------------
+     |  Main Functions
+     | ------------------------------------------------------------------------------------------------
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->store = $this->createStore();
+    }
+
+    public function tearDown()
+    {
+        unset($this->store);
+
+        parent::tearDown();
+    }
+
+    /* ------------------------------------------------------------------------------------------------
      |  Test Functions
      | ------------------------------------------------------------------------------------------------
      */
     /** @test */
     public function it_must_get_empty_array_in_init()
     {
-        $store = $this->createStore();
-
-        $this->assertEquals([], $store->all());
+        $this->assertEquals([], $this->store->all());
     }
 
     /** @test */
     public function it_can_set()
     {
-        $store = $this->createStore();
-        $store->set('foo', 'bar');
+        $this->store->set('foo', 'bar');
 
-        $this->assertStoreKeyEquals($store, 'foo', 'bar');
+        $this->assertStoreKeyEquals('foo', 'bar');
     }
 
     /** @test */
     public function it_can_set_nested_keys_value()
     {
-        $store = $this->createStore();
-        $store->set('foo.bar', 'baz');
+        $this->store->set('foo.bar', 'baz');
 
-        $this->assertStoreEquals($store, ['foo' => ['bar' => 'baz']]);
+        $this->assertStoreEquals([
+            'foo' => [
+                'bar' => 'baz',
+            ],
+        ]);
     }
 
     /**
@@ -49,34 +75,36 @@ abstract class AbstractStoreTest extends TestCase
      */
     public function it_cannot_set_nested_key_on_non_array_member()
     {
-        $store = $this->createStore();
-        $store->set('foo', 'bar');
-        $store->set('foo.bar', 'baz');
+        $this->store->set('foo', 'bar');
+        $this->store->set('foo.bar', 'baz');
     }
 
     /** @test */
     public function it_can_forget_key()
     {
-        $store = $this->createStore();
-        $store->set('foo', 'bar');
-        $store->set('bar', 'baz');
+        $this->store->set('foo', 'bar');
+        $this->store->set('bar', 'baz');
 
-        $this->assertStoreEquals($store, ['foo' => 'bar', 'bar' => 'baz']);
+        $this->assertStoreEquals([
+            'foo' => 'bar',
+            'bar' => 'baz',
+        ]);
 
-        $store->forget('foo');
+        $this->store->forget('foo');
 
-        $this->assertStoreEquals($store, ['bar' => 'baz']);
+        $this->assertStoreEquals([
+            'bar' => 'baz',
+        ]);
     }
 
     /** @test */
     public function it_can_forget_nested_key()
     {
-        $store = $this->createStore();
-        $store->set('foo.bar', 'baz');
-        $store->set('foo.baz', 'bar');
-        $store->set('bar.foo', 'baz');
+        $this->store->set('foo.bar', 'baz');
+        $this->store->set('foo.baz', 'bar');
+        $this->store->set('bar.foo', 'baz');
 
-        $this->assertStoreEquals($store, [
+        $this->assertStoreEquals([
             'foo' => [
                 'bar' => 'baz',
                 'baz' => 'bar',
@@ -86,9 +114,9 @@ abstract class AbstractStoreTest extends TestCase
             ],
         ]);
 
-        $store->forget('foo.bar');
+        $this->store->forget('foo.bar');
 
-        $this->assertStoreEquals($store, [
+        $this->assertStoreEquals([
             'foo' => [
                 'baz' => 'bar',
             ],
@@ -97,7 +125,7 @@ abstract class AbstractStoreTest extends TestCase
             ],
         ]);
 
-        $store->forget('bar.foo');
+        $this->store->forget('bar.foo');
         $expected = [
             'foo' => [
                 'baz' => 'bar',
@@ -105,23 +133,27 @@ abstract class AbstractStoreTest extends TestCase
             'bar' => [],
         ];
 
-        if ($store instanceof \Arcanedev\Settings\Stores\DatabaseStore) {
+        if ($this->store instanceof DatabaseStore) {
             unset($expected['bar']);
         }
 
-        $this->assertStoreEquals($store, $expected);
+        $this->assertStoreEquals($expected);
     }
 
     /** @test */
     public function it_can_reset()
     {
-        $store = $this->createStore(['foo' => 'bar']);
+        $this->store = $this->createStore([
+            'foo' => 'bar',
+        ]);
 
-        $this->assertStoreEquals($store, ['foo' => 'bar']);
+        $this->assertStoreEquals([
+            'foo' => 'bar',
+        ]);
 
-        $store->reset();
+        $this->store->reset();
 
-        $this->assertStoreEquals($store, []);
+        $this->assertStoreEquals([]);
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -141,23 +173,23 @@ abstract class AbstractStoreTest extends TestCase
      |  Assert Functions
      | ------------------------------------------------------------------------------------------------
      */
-    protected function assertStoreEquals(StoreContract $store, $expected, $message = null)
+    protected function assertStoreEquals($expected, $message = null)
     {
-        $this->assertEquals($expected, $store->all(), $message);
+        $this->assertEquals($expected, $this->store->all(), $message);
 
-        $store->save();
+        $this->store->save();
         $store = $this->createStore();
 
         $this->assertEquals($expected, $store->all(), $message);
     }
 
-    protected function assertStoreKeyEquals(StoreContract $store, $key, $expected, $message = null)
+    protected function assertStoreKeyEquals($key, $expected, $message = null)
     {
-        $this->assertEquals($expected, $store->get($key), $message);
+        $this->assertEquals($expected, $this->store->get($key), $message);
 
-        $store->save();
-        $store = $this->createStore();
+        $this->store->save();
+        $this->store = $this->createStore();
 
-        $this->assertEquals($expected, $store->get($key), $message);
+        $this->assertEquals($expected, $this->store->get($key), $message);
     }
 }
